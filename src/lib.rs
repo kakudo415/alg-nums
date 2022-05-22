@@ -6,10 +6,8 @@ mod tests {
 
     #[test]
     fn test_add() {
-        let zero = Integer::zero();
-        let v0 = Integer::from(9);
-        let v1 = Integer::from(16);
-        let v2 = Integer::from(25);
-        println!("{} {} {} {}", zero, v0, v1, v2);
+        let v0 = Integer::from(usize::MAX);
+        let v1 = Integer::from(usize::MAX);
+        println!("{} + {} = {}", v0.debug_message(), v1.debug_message(), (&v0 + &v1).debug_message());
     }
 }
