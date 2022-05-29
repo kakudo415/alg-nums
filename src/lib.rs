@@ -6,8 +6,10 @@ mod tests {
 
     #[test]
     fn test_add() {
-        let v0 = Integer::from(usize::MAX);
-        let v1 = Integer::from(usize::MAX);
-        println!("{} + {} = {}", v0.debug_message(), v1.debug_message(), (&v0 + &v1).debug_message());
+        let mut sum = Integer::from(100000000);
+        for i in 0..200 {
+            sum = &sum + &sum;
+            println!("{:03}: {:X}", i, sum);
+        }
     }
 }
