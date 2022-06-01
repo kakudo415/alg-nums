@@ -1,4 +1,5 @@
 use super::Integer;
+use super::Sign;
 
 use std::fmt;
 use std::fmt::Write;
@@ -27,13 +28,14 @@ impl ops::IndexMut<usize> for Integer {
     }
 }
 
-impl From<usize> for Integer {
-    fn from(value: usize) -> Self {
+impl From<isize> for Integer {
+    fn from(value: isize) -> Self {
         if value == 0 {
             return Integer::zero();
         }
         let mut new_integer = Integer::new(1);
-        new_integer[0] = value;
+        new_integer.sign = if value > 0 { Sign::Plus } else { Sign::Minus };
+        new_integer[0] = value.abs() as usize;
         new_integer
     }
 }
@@ -41,6 +43,8 @@ impl From<usize> for Integer {
 impl fmt::UpperHex for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut uhex = String::new();
+        let sign = if self.sign == Sign::Minus { "-" } else { " " };
+        write!(uhex, "{}", sign).unwrap();
         for i in (0..self.length).rev() {
             write!(uhex, "{:016X}", self[i]).unwrap();
         }
