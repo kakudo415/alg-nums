@@ -22,6 +22,7 @@ pub struct Integer {
     digits: *mut usize,
     length: usize,
     capacity: usize, // TODO: 将来的にはlength==capacityにして一本化？
+                     // むずそう。計算前capacity推測を完璧にしないと、capacityが爆発してしまうから。
 }
 
 // immutableにすれば、Copyにしてもいい？
