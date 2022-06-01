@@ -1,7 +1,7 @@
-pub mod addition;
-pub mod comparison;
-pub mod subtraction;
-pub mod utilities;
+pub mod add;
+pub mod cmp;
+pub mod misc;
+pub mod sub;
 
 use std::alloc::alloc;
 use std::alloc::Layout;
@@ -40,20 +40,13 @@ impl Integer {
         }
     }
 
-    fn fit(mut self) -> Self {
+    fn fit(&mut self) {
         for i in (0..self.length).rev() {
             if self[i] != 0 {
                 break;
             }
             self.length -= 1;
         }
-        let mut fitted_integer = Integer::new(self.length);
-        fitted_integer.sign = self.sign;
-        unsafe {
-            copy(self.digits, fitted_integer.digits, self.length);
-        }
-        fitted_integer.length = self.length;
-        fitted_integer
     }
 
     pub fn zero() -> Self {

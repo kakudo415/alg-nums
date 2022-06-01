@@ -10,13 +10,15 @@ impl Add for &Integer {
     type Output = Integer;
 
     fn add(self, rhs: Self) -> Integer {
-        match (self.sign, rhs.sign) {
+        let mut sum = match (self.sign, rhs.sign) {
             (_, Sign::Undefined) => self.clone(),
             (Sign::Undefined, _) => rhs.clone(),
             (Sign::Plus, Sign::Plus) | (Sign::Minus, Sign::Minus) => add_same_signs(self, rhs),
             (Sign::Plus, Sign::Minus) => add_plus_minus(self, rhs),
             (Sign::Minus, Sign::Plus) => add_plus_minus(rhs, self),
-        }
+        };
+        sum.fit();
+        sum
     }
 }
 
