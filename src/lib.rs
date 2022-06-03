@@ -1,4 +1,5 @@
 mod integer;
+mod natural;
 
 #[cfg(test)]
 mod tests {

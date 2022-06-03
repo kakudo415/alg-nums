@@ -2,8 +2,6 @@ use super::*;
 
 use std::ops::Add;
 
-const MSB: usize = 1 << (usize::BITS - 1); // Most Significant Bit
-
 impl Add for &Integer {
     type Output = Integer;
 

@@ -4,8 +4,7 @@ pub mod misc;
 pub mod sub;
 
 // 自然数を拡張して整数を作る
-pub mod natural;
-pub use natural::*;
+pub use super::natural::*;
 
 use std::ops::Neg;
 
