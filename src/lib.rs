@@ -1,9 +1,8 @@
-mod natural;
 mod integer;
 
 #[cfg(test)]
 mod tests {
-    use super::integer::Integer;
+    use super::integer::*;
 
     #[test]
     fn test_add() {

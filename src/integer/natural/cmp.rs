@@ -13,8 +13,6 @@ impl PartialEq for Natural {
     }
 }
 
-impl Eq for Natural {}
-
 impl PartialOrd for Natural {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         for i in (0..max(self.length, other.length)).rev() {

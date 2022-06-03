@@ -8,6 +8,7 @@ use std::alloc::Layout;
 use std::ptr::copy;
 use std::ptr::write_bytes;
 
+#[derive(Eq, Ord)]
 pub struct Natural {
     digits: *mut usize,
     length: usize,
@@ -16,7 +17,7 @@ pub struct Natural {
 }
 
 impl Natural {
-    fn new(capacity: usize) -> Self {
+    pub fn new(capacity: usize) -> Self {
         let new_layout = Layout::array::<usize>(capacity).unwrap();
         let new_ptr = unsafe { alloc(new_layout) } as *mut usize;
         unsafe {
