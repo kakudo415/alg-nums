@@ -4,6 +4,7 @@ pub mod misc;
 pub mod sub;
 
 use std::alloc::alloc;
+use std::alloc::dealloc;
 use std::alloc::Layout;
 use std::ptr::copy;
 use std::ptr::write_bytes;
@@ -43,6 +44,15 @@ impl Natural {
         let mut new_zero = Natural::new(1);
         new_zero[0] = 0;
         new_zero
+    }
+}
+
+impl Drop for Natural {
+    fn drop(&mut self) {
+        let layout = Layout::array::<usize>(self.capacity).unwrap();
+        unsafe {
+            dealloc(self.digits as *mut u8, layout);
+        }
     }
 }
 
