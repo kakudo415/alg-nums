@@ -7,25 +7,31 @@ impl Sub for &Natural {
     type Output = Natural;
 
     fn sub(self, rhs: Self) -> Natural {
-        let mut sum = Natural::new(needed_capacity(self, rhs));
+        let mut answer = Natural::new(needed_capacity(self, rhs));
 
-        let mut lhs = self.clone(); // TODO: 左辺をclone()しなくても繰り下がり処理をできるようにする
-        for i in 0..sum.length {
-            if lhs[i] >= rhs[i] {
-                sum[i] = lhs[i] - rhs[i];
-            } else {
-                sum[i] = (usize::MAX - (rhs[i] - lhs[i])) + 1; // 繰り下げて計算
-                for j in (i + 1)..sum.length {
-                    if lhs[j] > 0 {
-                        lhs[j] -= 1;
-                        break;
-                    }
-                    lhs[j] = usize::MAX;
-                }
-            }
+        let mut digit = (0, 0); // (diff, borrow)
+        for i in 0..answer.capacity {
+            digit = sub_borrow(self[i], rhs[i], digit.1);
+            answer[i] = digit.0;
         }
-        sum.fit();
-        sum
+        if digit.1 > 0 {
+            panic!("Cannot calculate (LITTLE - BIG) in Natural Number");
+        }
+        answer.fit();
+        answer
+    }
+}
+
+#[inline]
+fn sub_borrow(lhs: usize, rhs: usize, borrow: usize) -> (usize, usize) {
+    if rhs == usize::MAX && borrow > 0 {
+        (lhs, 1)
+    } else {
+        if lhs >= rhs + borrow {
+            (lhs - rhs - borrow, 0)
+        } else {
+            (usize::MAX - rhs - borrow + lhs + 1, 1)
+        }
     }
 }
 
