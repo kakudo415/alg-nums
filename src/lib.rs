@@ -1,3 +1,4 @@
+mod natural;
 mod integer;
 
 #[cfg(test)]
