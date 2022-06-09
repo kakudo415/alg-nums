@@ -1,5 +1,6 @@
 pub mod add;
 pub mod cmp;
+pub mod mul;
 pub mod sub;
 
 // 自然数を拡張して整数を作る

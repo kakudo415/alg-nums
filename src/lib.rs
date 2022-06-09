@@ -6,7 +6,7 @@ mod tests {
     use super::integer::*;
 
     #[test]
-    fn test_add() {
+    fn test_natural_add() {
         let n0 = Integer::zero();
         let n9 = Integer::from(9);
         let n16 = Integer::from(16);
@@ -28,7 +28,7 @@ mod tests {
     }
 
     #[test]
-    fn test_mul() {
+    fn test_natural_mul() {
         let n6 = Natural::from(6);
         let n216 = Natural::from(216);
         let mut ans6 = Natural::from(1);
@@ -43,15 +43,29 @@ mod tests {
     }
 
     #[test]
-    fn test_add_mul() {
+    fn test_natural_add_mul() {
         let n2 = Natural::from(2);
         let mut ans_add = Natural::from(1234567890);
         let mut ans_mul = Natural::from(1234567890);
         for _ in 0..256 {
             ans_add = &ans_add + &ans_add;
             ans_mul = &ans_mul * &n2;
-            println!("{:X}", ans_mul);
             assert!(ans_add == ans_mul);
+        }
+    }
+
+    #[test]
+    fn test_integer_mul() {
+        let i1234567890 = Integer::from(1234567890);
+        let im1234567890 = Integer::from(-1234567890);
+        let mut ans = Integer::from(1234567890);
+        let mut ansm = Integer::from(1234567890);
+        for c in 0..256 {
+            ans = &ans * &i1234567890;
+            ansm = &ansm * &im1234567890;
+            if c % 2 == 0 {
+                assert!(ans == -&ansm);
+            }
         }
     }
 }
