@@ -5,14 +5,11 @@ use std::ops::Mul;
 impl Mul for &Integer {
     type Output = Integer;
 
-    fn mul(self, rhs: Self) -> Integer {
-        Integer {
-            sign: match (self.sign, rhs.sign) {
-                (Sign::Plus, Sign::Plus) | (Sign::Minus, Sign::Minus) => Sign::Plus,
-                (Sign::Plus, Sign::Minus) | (Sign::Minus, Sign::Plus) => Sign::Minus,
-                (_, _) => Sign::Undefined,
-            },
-            abs_value: &self.abs_value * &rhs.abs_value,
+    fn mul(self, other: Self) -> Integer {
+        match (self, other) {
+            (Integer::Plus(lhs), Integer::Plus(rhs)) | (Integer::Minus(lhs), Integer::Minus(rhs)) => Integer::Plus(lhs * rhs),
+            (Integer::Plus(lhs), Integer::Minus(rhs)) | (Integer::Minus(lhs), Integer::Plus(rhs)) => Integer::Minus(lhs * rhs),
+            (_, _) => Integer::Zero
         }
     }
 }
