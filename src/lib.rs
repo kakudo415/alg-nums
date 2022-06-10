@@ -1,9 +1,10 @@
 mod integer;
 mod natural;
+mod rational;
 
 #[cfg(test)]
 mod tests {
-    use super::integer::*;
+    use super::rational::*;
 
     #[test]
     fn test_natural_add() {

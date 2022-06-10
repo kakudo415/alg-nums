@@ -60,6 +60,12 @@ impl ops::Neg for &Integer {
     }
 }
 
+impl From<&Natural> for Integer {
+    fn from(value: &Natural) -> Self {
+        Integer::Plus(value.clone())
+    }
+}
+
 impl From<isize> for Integer {
     fn from(value: isize) -> Self {
         if value == 0 {
