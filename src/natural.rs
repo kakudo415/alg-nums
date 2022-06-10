@@ -1,3 +1,5 @@
+pub use digit::Digit;
+
 mod add;
 mod cmp;
 mod digit;
@@ -8,8 +10,6 @@ use std::alloc::*;
 use std::fmt::*;
 use std::ops;
 use std::ptr::*;
-
-pub use digit::Digit;
 
 // 1, 2, 3, ...
 #[derive(Eq, Ord)]

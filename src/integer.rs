@@ -1,10 +1,10 @@
-pub mod add;
-pub mod cmp;
-pub mod mul;
-pub mod sub;
-
 // 自然数を拡張して整数を作る
 pub use super::natural::*;
+
+mod add;
+mod cmp;
+mod mul;
+mod sub;
 
 use std::fmt;
 use std::ops;

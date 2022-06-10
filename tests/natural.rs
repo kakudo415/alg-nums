@@ -1,4 +1,4 @@
-use alg_nums::rational::*;
+use alg_nums::*;
 
 #[test]
 fn add() {

@@ -1,3 +1,7 @@
-pub mod integer;
-pub mod natural;
-pub mod rational;
+mod integer;
+mod natural;
+mod rational;
+
+pub use integer::*;
+pub use natural::*;
+pub use rational::*;

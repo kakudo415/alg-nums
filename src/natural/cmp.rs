@@ -1,4 +1,4 @@
-use super::Natural;
+use super::*;
 
 use std::cmp::*;
 

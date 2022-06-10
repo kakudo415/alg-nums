@@ -1,8 +1,8 @@
+pub use super::integer::*;
+
 mod add;
 mod mul;
 mod sub;
-
-pub use super::integer::*;
 
 use std::cmp;
 use std::fmt;
