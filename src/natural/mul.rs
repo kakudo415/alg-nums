@@ -11,6 +11,9 @@ impl Mul for &Natural {
         let mut answer = Natural::new(needed_capacity(self, rhs));
 
         for i in 0..rhs.length {
+            if rhs[i] == 0 {
+                continue;
+            }
             answer = &answer + &mul_1digit(self, rhs[i], i);
         }
 
