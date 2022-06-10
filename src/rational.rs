@@ -10,7 +10,7 @@ use std::ops;
 
 pub struct Rational {
     numerator: Integer,
-    denominator: Natural, // 自然数に0を許容すべきじゃ無さそう
+    denominator: Natural,
 }
 
 impl ops::Neg for &Rational {
@@ -24,7 +24,15 @@ impl ops::Neg for &Rational {
     }
 }
 
-// TODO: タプルで受け取らないようにする
+impl From<(Integer, Natural)> for Rational {
+    fn from((numerator, denominator): (Integer, Natural)) -> Self {
+        Rational {
+            numerator: numerator,
+            denominator: denominator,
+        }
+    }
+}
+
 impl From<(isize, usize)> for Rational {
     fn from((numerator, denominator): (isize, usize)) -> Self {
         Rational {
