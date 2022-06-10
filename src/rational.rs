@@ -50,7 +50,7 @@ impl fmt::UpperHex for Rational {
         for _ in 0..cmp::max(numerator.len() + 1, denominator.len() + 2) {
             write!(f, "─").unwrap();
         }
-        write!(f, "\n");
+        write!(f, "\n").unwrap();
         write!(f, " {}", denominator)
     }
 }
