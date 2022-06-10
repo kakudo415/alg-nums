@@ -11,6 +11,7 @@ use std::ptr::*;
 
 pub use digit::Digit;
 
+// 1, 2, 3, ...
 #[derive(Eq, Ord)]
 pub struct Natural {
     digits: *mut Digit,
@@ -32,31 +33,16 @@ impl Natural {
         }
     }
 
-    fn fit(&mut self) {
+    fn normalize(&mut self) {
         for i in (0..self.length).rev() {
             if self[i] != 0 {
                 break;
             }
             self.length -= 1;
         }
-    }
-
-    pub fn zero() -> Self {
-        let mut new_zero = Natural::new(1);
-        new_zero[0] = 0;
-        new_zero
-    }
-
-    pub fn is_zero(&self) -> bool {
-        for i in (0..self.length).rev() {
-            if self[i] != 0 {
-                break;
-            }
-            if i == 0 {
-                return true;
-            }
+        if self.length == 0 {
+            panic!("NATURAL NUMBER CANNOT BE ZERO!");
         }
-        return false;
     }
 }
 
@@ -106,7 +92,7 @@ impl ops::IndexMut<Digit> for Natural {
 impl From<usize> for Natural {
     fn from(value: usize) -> Self {
         if value == 0 {
-            return Natural::zero();
+            panic!("Natural number cannot be zero!");
         }
         let mut new_integer = Natural::new(1);
         new_integer[0] = value;

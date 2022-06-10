@@ -9,6 +9,7 @@ pub use super::natural::*;
 use std::fmt;
 use std::ops;
 
+// ..., -2, -1, 0, 1, 2, ...
 pub enum Integer {
     Zero,
     Plus(Natural),
@@ -25,15 +26,6 @@ impl Integer {
             Integer::Zero => Integer::Zero,
             Integer::Plus(value) => Integer::Plus(value.clone()),
             Integer::Minus(value) => Integer::Plus(value.clone()),
-        }
-    }
-
-    fn normalize(&self) -> Self {
-        match self {
-            Integer::Zero => Integer::Zero,
-            Integer::Plus(value) | Integer::Minus(value) if value.is_zero() => Integer::Zero,
-            Integer::Plus(value) => Integer::Plus(value.clone()),
-            Integer::Minus(value) => Integer::Minus(value.clone()),
         }
     }
 }

@@ -15,7 +15,7 @@ impl Add for &Natural {
             digit = add_carry([self[i], rhs[i], digit[1]]);
             answer[i] = digit[0];
         }
-        answer.fit();
+        answer.normalize();
         answer
     }
 }

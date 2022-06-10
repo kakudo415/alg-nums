@@ -18,7 +18,7 @@ impl Sub for &Natural {
         if digit[1] > 0 {
             panic!("Cannot calculate (LITTLE - BIG) in Natural Number");
         }
-        answer.fit();
+        answer.normalize();
         answer
     }
 }

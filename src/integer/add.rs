@@ -6,7 +6,7 @@ impl Add for &Integer {
     type Output = Integer;
 
     fn add(self, other: Self) -> Integer {
-        let answer = match (self, other) {
+        match (self, other) {
             // 0が含まれるもの
             (_, Integer::Zero) => self.clone(),
             (Integer::Zero, _) => other.clone(),
@@ -20,7 +20,6 @@ impl Add for &Integer {
             (Integer::Minus(lhs), Integer::Plus(rhs)) if lhs > rhs => Integer::Minus(lhs - rhs),
             (Integer::Minus(lhs), Integer::Plus(rhs)) if lhs < rhs => Integer::Plus(rhs - lhs),
             (Integer::Minus(_), Integer::Plus(_)) => Integer::Zero,
-        };
-        answer.normalize()
+        }
     }
 }

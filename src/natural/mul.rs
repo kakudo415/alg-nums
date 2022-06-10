@@ -14,7 +14,7 @@ impl Mul for &Natural {
             answer = &answer + &mul_1digit(self, rhs[i], i);
         }
 
-        answer.fit();
+        answer.normalize();
         answer
     }
 }
@@ -29,7 +29,7 @@ fn mul_1digit(lhs: &Natural, rhs: Digit, offset: Digit) -> Natural {
         answer[offset + i] = digit[0];
     }
 
-    answer.fit();
+    answer.normalize();
     answer
 }
 
