@@ -24,7 +24,7 @@ fn mul_1digit(lhs: &Natural, rhs: Digit, offset: Digit) -> Natural {
     let mut answer = Natural::new(offset + lhs.length + 1);
 
     let mut digit = [0, 0];
-    for i in 0..answer.capacity {
+    for i in 0..lhs.capacity {
         digit = mul_carry(lhs[i], rhs, digit[1]);
         answer[offset + i] = digit[0];
     }
