@@ -5,7 +5,7 @@ use std::ops::Sub;
 impl Sub for &Integer {
     type Output = Integer;
 
-    fn sub(self, rhs: Self) -> Integer {
-        self + &(-rhs)
+    fn sub(self, other: Self) -> Integer {
+        self + &(-other)
     }
 }

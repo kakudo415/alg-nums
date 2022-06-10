@@ -46,6 +46,18 @@ impl Natural {
         new_zero[0] = 0;
         new_zero
     }
+
+    pub fn is_zero(&self) -> bool {
+        for i in (0..self.length).rev() {
+            if self[i] != 0 {
+                break;
+            }
+            if i == 0 {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 impl Drop for Natural {

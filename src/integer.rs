@@ -27,6 +27,15 @@ impl Integer {
             Integer::Minus(value) => Integer::Plus(value.clone()),
         }
     }
+
+    fn normalize(&self) -> Self {
+        match self {
+            Integer::Zero => Integer::Zero,
+            Integer::Plus(value) | Integer::Minus(value) if value.is_zero() => Integer::Zero,
+            Integer::Plus(value) => Integer::Plus(value.clone()),
+            Integer::Minus(value) => Integer::Minus(value.clone()),
+        }
+    }
 }
 
 impl Clone for Integer {
