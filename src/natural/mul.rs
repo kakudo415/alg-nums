@@ -3,11 +3,20 @@ use super::*;
 
 use std::ops::Mul;
 
+// TODO: ちゃんと計測して閾値を決める
+const KARATSUBA_THRESHOLD: usize = 65536;
+const FFT_THRESHOLD: usize = 16777216;
+
 impl Mul for &Natural {
     type Output = Natural;
 
-    // TODO: Karatsuba法・FFT法も実装する
     fn mul(self, other: Self) -> Natural {
+        if self.length >= FFT_THRESHOLD && other.length >= FFT_THRESHOLD {
+            return fft(self, other);
+        }
+        if self.length >= KARATSUBA_THRESHOLD && other.length >= KARATSUBA_THRESHOLD {
+            return karatsuba(self, other);
+        }
         school(self, other)
     }
 }
@@ -28,6 +37,20 @@ fn school(lhs: &Natural, rhs: &Natural) -> Natural {
 
     answer.normalize();
     answer
+}
+
+fn karatsuba(lhs: &Natural, rhs: &Natural) -> Natural {
+    let mut answer = Natural::new(needed_capacity(lhs, rhs));
+    _karatsuba(&mut answer, lhs, rhs);
+    answer
+}
+
+fn _karatsuba(answer: &mut Natural, lhs: &Natural, rhs: &Natural) -> Natural {
+    todo!()
+}
+
+fn fft(lhs: &Natural, rhs: &Natural) -> Natural {
+    todo!();
 }
 
 fn needed_capacity(lhs: &Natural, rhs: &Natural) -> usize {
