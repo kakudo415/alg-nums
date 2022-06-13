@@ -1,5 +1,5 @@
-use super::digit::*;
-use super::*;
+use super::digit::sub_borrow;
+use super::Natural;
 
 use std::cmp;
 use std::ops::Sub;

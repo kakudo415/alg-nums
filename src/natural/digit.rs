@@ -3,39 +3,37 @@ pub type Digit = usize;
 const HALF_WIDTH: u32 = Digit::BITS / 2;
 const LOW_BITS: Digit = Digit::MAX >> HALF_WIDTH;
 
+// N <= 2^(Digit::BITS / 2)
 pub(crate) fn add_carry<const N: usize>(operands: [Digit; N]) -> [Digit; 2] {
     let mut buffer = [0, 0];
+
     for operand in &operands {
         buffer[0] += operand & LOW_BITS;
         buffer[1] += operand >> HALF_WIDTH;
     }
     buffer[1] += buffer[0] >> HALF_WIDTH;
 
-    [
-        (buffer[0] & LOW_BITS) | (buffer[1] << HALF_WIDTH),
-        buffer[1] >> HALF_WIDTH,
-    ]
+    buffer[0] = (buffer[0] & LOW_BITS) | (buffer[1] << HALF_WIDTH);
+    buffer[1] = buffer[1] >> HALF_WIDTH;
+
+    buffer
 }
 
+// 0 < N
 pub(crate) fn sub_borrow<const N: usize>(operands: [Digit; N]) -> [Digit; 2] {
-    let mut answer = 0;
-    let mut borrow = 0;
-    for i in 0..N {
-        let operand = operands[i];
-        if i == 0 {
-            answer = operand;
-            continue;
-        }
+    let mut buffer = [operands[0], 0];
 
-        if answer >= operand {
-            answer -= operand;
+    for i in 1..N {
+        let operand = operands[i];
+        if buffer[0] >= operand {
+            buffer[0] -= operand;
         } else {
-            answer = Digit::MAX - operand + answer + 1;
-            borrow += 1;
+            buffer[0] = Digit::MAX - operand + buffer[0] + 1;
+            buffer[1] += 1;
         }
     }
 
-    [answer, borrow]
+    buffer
 }
 
 pub(crate) fn mul_carry(lhs: Digit, rhs: Digit, carry: Digit, inter: Digit) -> [Digit; 2] {

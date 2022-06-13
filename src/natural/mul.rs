@@ -1,5 +1,5 @@
-use super::digit::*;
-use super::*;
+use super::digit::mul_carry;
+use super::Natural;
 
 use std::ops::Mul;
 
@@ -17,11 +17,11 @@ impl Mul for &Natural {
         if self.length >= KARATSUBA_THRESHOLD && other.length >= KARATSUBA_THRESHOLD {
             return karatsuba(self, other);
         }
-        school(self, other)
+        grade_school(self, other)
     }
 }
 
-fn school(lhs: &Natural, rhs: &Natural) -> Natural {
+fn grade_school(lhs: &Natural, rhs: &Natural) -> Natural {
     let mut answer = Natural::new(needed_capacity(lhs, rhs));
 
     for i in 0..rhs.length {

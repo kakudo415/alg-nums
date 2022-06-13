@@ -1,5 +1,5 @@
-use super::digit::*;
-use super::*;
+use super::digit::add_carry;
+use super::Natural;
 
 use std::cmp;
 use std::ops::Add;
@@ -10,10 +10,10 @@ impl Add for &Natural {
     fn add(self, rhs: Self) -> Natural {
         let mut answer = Natural::new(needed_capacity(self, rhs));
 
-        let mut digit = [0, 0]; // (sum, carried)
+        let mut sum_carried = [0, 0]; // (sum, carried)
         for i in 0..answer.capacity {
-            digit = add_carry([self[i], rhs[i], digit[1]]);
-            answer[i] = digit[0];
+            sum_carried = add_carry([self[i], rhs[i], sum_carried[1]]);
+            answer[i] = sum_carried[0];
         }
         answer.normalize();
         answer

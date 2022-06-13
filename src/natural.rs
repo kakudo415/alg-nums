@@ -1,17 +1,19 @@
-pub use digit::Digit;
-
 mod add;
 mod cmp;
 mod digit;
 mod mul;
 mod sub;
 
-use std::alloc::*;
-use std::fmt::*;
+use digit::Digit;
+
+use std::alloc;
+use std::fmt;
+use std::fmt::Write;
 use std::ops;
-use std::ptr::*;
+use std::ptr;
 
 // 1, 2, 3, ...
+// TODO: 非0を保障する
 #[derive(Eq, Ord)]
 pub struct Natural {
     digits: *mut Digit,
@@ -21,13 +23,13 @@ pub struct Natural {
 
 impl Natural {
     pub(crate) fn new(capacity: usize) -> Self {
-        let new_layout = Layout::array::<Digit>(capacity).unwrap();
-        let new_ptr = unsafe { alloc(new_layout) } as *mut Digit;
+        let layout = alloc::Layout::array::<Digit>(capacity).unwrap();
+        let pointer = unsafe { alloc::alloc(layout) } as *mut Digit;
         unsafe {
-            write_bytes::<Digit>(new_ptr, 0, capacity);
+            ptr::write_bytes::<Digit>(pointer, 0, capacity);
         }
         Natural {
-            digits: new_ptr,
+            digits: pointer,
             length: 0,
             capacity: capacity,
         }
@@ -48,21 +50,21 @@ impl Natural {
 
 impl Drop for Natural {
     fn drop(&mut self) {
-        let layout = Layout::array::<Digit>(self.capacity).unwrap();
+        let layout = alloc::Layout::array::<Digit>(self.capacity).unwrap();
         unsafe {
-            dealloc(self.digits as *mut u8, layout);
+            alloc::dealloc(self.digits as *mut u8, layout);
         }
     }
 }
 
 impl Clone for Natural {
     fn clone(&self) -> Self {
-        let mut cloned_integer = Natural::new(self.capacity);
+        let mut cloned = Natural::new(self.capacity);
         unsafe {
-            copy(self.digits, cloned_integer.digits, self.length);
+            ptr::copy(self.digits, cloned.digits, self.length);
         }
-        cloned_integer.length = self.length;
-        cloned_integer
+        cloned.length = self.length;
+        cloned
     }
 }
 
@@ -100,8 +102,8 @@ impl From<usize> for Natural {
     }
 }
 
-impl UpperHex for Natural {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+impl fmt::UpperHex for Natural {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut uhex = String::new();
         for i in (0..self.length).rev() {
             write!(uhex, "{:016X}", self[i]).unwrap();
