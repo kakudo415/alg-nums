@@ -1,5 +1,6 @@
 use super::*;
 
+use std::cmp::Ordering::*;
 use std::ops::Add;
 
 impl Add for &Integer {
@@ -14,12 +15,16 @@ impl Add for &Integer {
             (Integer::Plus(lhs), Integer::Plus(rhs)) => Integer::Plus(lhs + rhs),
             (Integer::Minus(lhs), Integer::Minus(rhs)) => Integer::Minus(lhs + rhs),
             // 実質引き算
-            (Integer::Plus(lhs), Integer::Minus(rhs)) if lhs > rhs => Integer::Plus(lhs - rhs),
-            (Integer::Plus(lhs), Integer::Minus(rhs)) if lhs < rhs => Integer::Minus(rhs - lhs),
-            (Integer::Plus(_), Integer::Minus(_)) => Integer::Zero,
-            (Integer::Minus(lhs), Integer::Plus(rhs)) if lhs > rhs => Integer::Minus(lhs - rhs),
-            (Integer::Minus(lhs), Integer::Plus(rhs)) if lhs < rhs => Integer::Plus(rhs - lhs),
-            (Integer::Minus(_), Integer::Plus(_)) => Integer::Zero,
+            (Integer::Plus(lhs), Integer::Minus(rhs)) => match lhs.cmp(rhs) {
+                Less => Integer::Minus(rhs - lhs),
+                Greater => Integer::Plus(lhs - rhs),
+                Equal => Integer::Zero,
+            },
+            (Integer::Minus(lhs), Integer::Plus(rhs)) => match lhs.cmp(rhs) {
+                Less => Integer::Plus(rhs - lhs),
+                Greater => Integer::Minus(lhs - rhs),
+                Equal => Integer::Zero,
+            },
         }
     }
 }
