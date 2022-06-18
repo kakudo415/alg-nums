@@ -1,4 +1,54 @@
-pub type Digit = usize;
+pub mod add;
+
+use std::alloc;
+use std::ops;
+use std::ptr;
+
+pub(crate) type Digit = usize;
+
+pub(crate) struct Digits {
+    pub(crate) pointer: *mut Digit,
+    pub(crate) capacity: usize,
+}
+
+impl Digits {
+    pub(crate) fn new(capacity: usize) -> Digits {
+        let layout = alloc::Layout::array::<Digit>(capacity).unwrap();
+        let pointer = unsafe { alloc::alloc(layout) } as *mut Digit;
+        unsafe {
+            ptr::write_bytes::<Digit>(pointer, 0, capacity);
+        }
+        Digits { pointer, capacity }
+    }
+}
+
+impl Drop for Digits {
+    fn drop(&mut self) {
+        let layout = alloc::Layout::array::<Digit>(self.capacity).unwrap();
+        unsafe {
+            alloc::dealloc(self.pointer as *mut u8, layout);
+        }
+    }
+}
+
+impl ops::Index<usize> for Digits {
+    type Output = Digit;
+    fn index(&self, idx: usize) -> &Digit {
+        if idx >= self.capacity {
+            return &0;
+        }
+        unsafe { self.pointer.offset(idx as isize).as_ref().unwrap() }
+    }
+}
+
+impl ops::IndexMut<Digit> for Digits {
+    fn index_mut(&mut self, idx: usize) -> &mut Digit {
+        if idx >= self.capacity {
+            panic!("Index(mut) is out of capacity.");
+        }
+        unsafe { self.pointer.offset(idx as isize).as_mut().unwrap() }
+    }
+}
 
 const HALF_WIDTH: u32 = Digit::BITS / 2;
 const LOW_BITS: Digit = Digit::MAX >> HALF_WIDTH;

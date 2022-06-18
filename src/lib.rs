@@ -1,3 +1,4 @@
+mod digits;
 mod integer;
 mod natural;
 mod rational;
