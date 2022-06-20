@@ -2,15 +2,13 @@ use alg_nums::*;
 
 #[test]
 fn add() {
-    let n0 = Integer::zero();
-    let n9 = Integer::from(9);
-    let n16 = Integer::from(16);
-    let n25 = Integer::from(25);
+    let n9 = Natural::from(9);
+    let n16 = Natural::from(16);
+    let n25 = Natural::from(25);
     assert!(&n9 + &n16 == n25);
-    assert!(&n0 + &n25 == n25);
 
-    let mut ans9 = Integer::zero();
-    let mut ans16 = Integer::zero();
+    let mut ans9 = Natural::from(144);
+    let mut ans16 = Natural::from(144);
     for _ in 0..256 {
         for _ in 0..16 {
             ans9 = &ans9 + &n9;

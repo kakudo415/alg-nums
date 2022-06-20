@@ -11,6 +11,7 @@ use std::fmt;
 use std::fmt::Write;
 use std::ops;
 use std::ptr;
+use std::slice;
 
 // 1, 2, 3, ...
 // TODO: 非0を保障する
@@ -30,21 +31,23 @@ impl Natural {
         }
         Natural {
             digits: pointer,
-            length: 0,
+            length: capacity,
             capacity: capacity,
         }
     }
 
     fn normalize(&mut self) {
+        let mut length = self.length;
         for i in (0..self.length).rev() {
             if self[i] != 0 {
                 break;
             }
-            self.length -= 1;
+            length -= 1;
         }
-        if self.length == 0 {
+        if length == 0 {
             panic!("NATURAL NUMBER CANNOT BE ZERO!");
         }
+        self.length = length;
     }
 }
 
@@ -79,6 +82,27 @@ impl ops::Index<usize> for Natural {
     }
 }
 
+impl ops::Index<ops::Range<usize>> for Natural {
+    type Output = [Digit];
+    fn index(&self, range: ops::Range<usize>) -> &[Digit] {
+        unsafe { slice::from_raw_parts(self.digits, range.len()) }
+    }
+}
+
+impl ops::Index<ops::RangeFrom<usize>> for Natural {
+    type Output = [Digit];
+    fn index(&self, range: ops::RangeFrom<usize>) -> &[Digit] {
+        unsafe { slice::from_raw_parts(self.digits, self.capacity - range.start) }
+    }
+}
+
+impl ops::Index<ops::RangeTo<usize>> for Natural {
+    type Output = [Digit];
+    fn index(&self, range: ops::RangeTo<usize>) -> &[Digit] {
+        unsafe { slice::from_raw_parts(self.digits, range.end) }
+    }
+}
+
 impl ops::IndexMut<Digit> for Natural {
     fn index_mut(&mut self, idx: usize) -> &mut Digit {
         if idx >= self.capacity {
@@ -88,6 +112,24 @@ impl ops::IndexMut<Digit> for Natural {
             self.length = idx + 1;
         }
         unsafe { self.digits.offset(idx as isize).as_mut().unwrap() }
+    }
+}
+
+impl ops::IndexMut<ops::Range<usize>> for Natural {
+    fn index_mut(&mut self, range: ops::Range<usize>) -> &mut [Digit] {
+        unsafe { slice::from_raw_parts_mut(self.digits, range.len()) }
+    }
+}
+
+impl ops::IndexMut<ops::RangeFrom<usize>> for Natural {
+    fn index_mut(&mut self, range: ops::RangeFrom<usize>) -> &mut [Digit] {
+        unsafe { slice::from_raw_parts_mut(self.digits, self.capacity - range.start) }
+    }
+}
+
+impl ops::IndexMut<ops::RangeTo<usize>> for Natural {
+    fn index_mut(&mut self, range: ops::RangeTo<usize>) -> &mut [Digit] {
+        unsafe { slice::from_raw_parts_mut(self.digits, range.end) }
     }
 }
 
