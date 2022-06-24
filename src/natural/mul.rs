@@ -1,79 +1,66 @@
-use super::add::*;
-use super::digit::*;
-use super::sub::*;
+use super::super::digit;
 use super::Natural;
 
 use std::ops::Mul;
-
-// TODO: ちゃんと計測して閾値を決める
-const KARATSUBA_THRESHOLD: usize = 4;
-const FFT_THRESHOLD: usize = 256;
 
 impl Mul for &Natural {
     type Output = Natural;
 
     fn mul(self, other: Self) -> Natural {
-        let (lhs, rhs) = if self.length > other.length {
-            (self, other)
-        } else {
-            (other, self)
-        };
-
-        // if rhs.length >= FFT_THRESHOLD {
-        //     return fft(lhs, rhs);
-        // }
-        karatsuba(lhs, rhs)
+        let mut answer = digit::RawDigits::with_capacity(needed_capacity(self, other));
+        digit::mul::mul(&mut answer, &self, &other);
+        Natural::from(answer.deref()) // なんでDerefされへんの･･･ again, again
     }
 }
 
-fn _grade_school(answer: &mut [Digit], lhs: &[Digit], rhs: &[Digit]) {
-    for i in 0..rhs.len() {
-        if rhs[i] == 0 {
-            continue;
-        }
-        let mut internal_answer = [0, 0];
-        for j in 0..lhs.len() {
-            internal_answer = mul_carry(rhs[i], lhs[j], internal_answer[1], answer[i + j]);
-            answer[i + j] = internal_answer[0];
-        }
-        if internal_answer[1] != 0 {
-            answer[i + lhs.len()] = internal_answer[1];
-        }
-    }
-}
+// fn _grade_school(answer: &mut [Digit], lhs: &[Digit], rhs: &[Digit]) {
+//     for i in 0..rhs.len() {
+//         if rhs[i] == 0 {
+//             continue;
+//         }
+//         let mut internal_answer = [0, 0];
+//         for j in 0..lhs.len() {
+//             internal_answer = mul_carry(rhs[i], lhs[j], internal_answer[1], answer[i + j]);
+//             answer[i + j] = internal_answer[0];
+//         }
+//         if internal_answer[1] != 0 {
+//             answer[i + lhs.len()] = internal_answer[1];
+//         }
+//     }
+// }
 
-fn karatsuba(lhs: &Natural, rhs: &Natural) -> Natural {
-    let mut answer = Natural::new(needed_capacity(lhs, rhs));
-    _karatsuba(&mut answer[0..], &lhs[0..], &rhs[0..]);
-    answer.normalize();
-    answer
-}
+// fn karatsuba(lhs: &Natural, rhs: &Natural) -> Natural {
+//     let mut answer = Natural::new(needed_capacity(lhs, rhs));
+//     _karatsuba(&mut answer[0..], &lhs[0..], &rhs[0..]);
+//     answer.normalize();
+//     answer
+// }
 
 // 暫定版, TODO: メモリ割り当て無し版を作る
-fn _karatsuba(answer: &mut [Digit], lhs: &[Digit], rhs: &[Digit]) {
-    if rhs.len() <= KARATSUBA_THRESHOLD {
-        return _grade_school(answer, lhs, rhs);
-    }
+// fn _karatsuba(answer: &mut [Digit], lhs: &[Digit], rhs: &[Digit]) {
+//     if rhs.len() <= KARATSUBA_THRESHOLD {
+//         return _grade_school(answer, lhs, rhs);
+//     }
 
-    let unit = lhs.len() + rhs.len();
-    let mid = rhs.len() / 2;
-    let lhs = lhs.split_at(mid);
-    let rhs = rhs.split_at(mid);
+//     let unit = lhs.len() + rhs.len();
+//     let mid = rhs.len() / 2;
+//     let lhs = lhs.split_at(mid);
+//     let rhs = rhs.split_at(mid);
 
-    _karatsuba(&mut answer[..mid * 2], lhs.0, rhs.0);
-    _karatsuba(&mut answer[mid * 2..], lhs.1, rhs.1);
+//     _karatsuba(&mut answer[..mid * 2], lhs.0, rhs.0);
+//     _karatsuba(&mut answer[mid * 2..], lhs.1, rhs.1);
 
-    let mut buffer = Natural::new(unit * 4);
-    let buffer = (&mut buffer[0..]).split_at_mut(unit * 2);
-    let ll = _add(&mut buffer.1[0..unit], lhs.0, lhs.1);
-    let rl = _add(&mut buffer.1[unit..unit * 2], rhs.0, rhs.1);
-    _karatsuba(buffer.0, &buffer.1[0..ll], &buffer.1[unit..unit + rl]);
+//     let mut buffer = Natural::new(unit * 4);
+//     let buffer = (&mut buffer[0..]).split_at_mut(unit * 2);
+//     let ll = _add(&mut buffer.1[0..unit], lhs.0, lhs.1);
+//     let rl = _add(&mut buffer.1[unit..unit * 2], rhs.0, rhs.1);
+//     _karatsuba(buffer.0, &buffer.1[0..ll], &buffer.1[unit..unit + rl]);
 
-    _sub_assign(buffer.0, &answer[..mid * 2]);
-    _sub_assign(buffer.0, &answer[mid * 2..]);
+//     _sub_assign(buffer.0, &answer[..mid * 2]);
+//     _sub_assign(buffer.0, &answer[mid * 2..]);
 
-    _add_assign(&mut answer[mid..], buffer.0);
-}
+//     _add_assign(&mut answer[mid..], buffer.0);
+// }
 
 //   (x0 + x1 × B) × (y0 + y1 × B)
 // = (x0 × y0)
@@ -128,5 +115,5 @@ fn fft(lhs: &Natural, rhs: &Natural) -> Natural {
 }
 
 fn needed_capacity(lhs: &Natural, rhs: &Natural) -> usize {
-    lhs.length + rhs.length
+    lhs.len + rhs.len
 }

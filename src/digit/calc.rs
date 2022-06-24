@@ -1,4 +1,4 @@
-pub type Digit = usize;
+use super::*;
 
 const HALF_WIDTH: u32 = Digit::BITS / 2;
 const LOW_BITS: Digit = Digit::MAX >> HALF_WIDTH;
