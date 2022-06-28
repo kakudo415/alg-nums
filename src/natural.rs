@@ -17,7 +17,7 @@ pub struct Natural {
     len: usize,
 }
 
-fn longest_natural(digits: &digit::DigitsSlice) -> Option<&digit::DigitsSlice> {
+fn longest_natural(digits: &digit::Digits) -> Option<&digit::Digits> {
     for i in (0..digits.len()).rev() {
         if digits[i] != 0 {
             return Some(&digits[0..=i]);
@@ -27,22 +27,22 @@ fn longest_natural(digits: &digit::DigitsSlice) -> Option<&digit::DigitsSlice> {
 }
 
 impl Natural {
-    fn from_digits_slice(digits_slice: &digit::DigitsSlice) -> Natural {
-        if let Some(digits) = longest_natural(digits_slice) {
+    fn from_digits(digits: &digit::Digits) -> Natural {
+        if let Some(digits) = longest_natural(digits) {
             let len = digits.len();
             let layout = alloc::Layout::array::<digit::Digit>(len).unwrap();
             let ptr = unsafe { alloc::alloc_zeroed(layout) } as *mut digit::Digit;
             unsafe {
-                ptr::copy(digits_slice.as_ptr(), ptr, len);
+                ptr::copy(digits.as_ptr(), ptr, len);
             }
             Natural { ptr, len }
         } else {
-            panic!("INVALID NATURAL NUMBER");
+            panic!("NATURAL CANNOT BE ZERO!");
         }
     }
 
-    fn deref(&self) -> &digit::DigitsSlice {
-        unsafe { digit::DigitsSlice::from_raw_parts(self.ptr, self.len) }
+    fn deref(&self) -> &digit::Digits {
+        unsafe { digit::Digits::from_raw_parts(self.ptr, self.len, self.len as isize) }
     }
 
     fn clone(&self) -> Self {
@@ -64,24 +64,26 @@ impl Natural {
 }
 
 impl ops::Deref for Natural {
-    type Target = digit::DigitsSlice;
-    fn deref(&self) -> &digit::DigitsSlice {
+    type Target = digit::Digits;
+    fn deref(&self) -> &digit::Digits {
         self.deref()
     }
 }
 
-impl From<&digit::DigitsSlice> for Natural {
-    fn from(digits_slice: &digit::DigitsSlice) -> Natural {
-        Natural::from_digits_slice(digits_slice)
+impl From<&digit::Digits> for Natural {
+    fn from(digits: &digit::Digits) -> Natural {
+        Natural::from_digits(digits)
     }
 }
 
 impl From<usize> for Natural {
     fn from(n: usize) -> Natural {
-        // TODO: n == 0 ERROR
+        if n == 0 {
+            panic!("NATURAL CANNOT BE ZERO!");
+        }
         let mut raw_digits = digit::RawDigits::with_capacity(1);
         raw_digits[0] = n;
-        Natural::from_digits_slice(&raw_digits)
+        Natural::from_digits(&raw_digits)
     }
 }
 

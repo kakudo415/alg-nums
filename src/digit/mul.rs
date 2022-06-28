@@ -3,12 +3,17 @@ use super::*;
 
 use std::cmp;
 
-pub fn mul(ans: &mut DigitsSlice, lhs: &DigitsSlice, rhs: &DigitsSlice) -> usize {
+const KARATSUBA_THRESHOLD: usize = 4;
+
+pub fn mul(ans: &mut Digits, lhs: &Digits, rhs: &Digits, width: usize) -> usize {
     // TODO: FFT
-    karatsuba(ans, lhs, rhs)
+    if width >= KARATSUBA_THRESHOLD {
+        return karatsuba(ans, lhs, rhs, width);
+    }
+    elementary(ans, lhs, rhs)
 }
 
-fn elementary(ans: &mut DigitsSlice, lhs: &DigitsSlice, rhs: &DigitsSlice) -> usize {
+fn elementary(ans: &mut Digits, lhs: &Digits, rhs: &Digits) -> usize {
     let mut ans_len = 0;
 
     // TODO: iteratorにする
@@ -33,10 +38,104 @@ fn elementary(ans: &mut DigitsSlice, lhs: &DigitsSlice, rhs: &DigitsSlice) -> us
     ans_len
 }
 
-fn karatsuba(ans: &mut DigitsSlice, lhs: &DigitsSlice, rhs: &DigitsSlice) -> usize {
-    if lhs.len() < rhs.len() {
-        return karatsuba(ans, rhs, lhs);
+// RECURSIONを固定長にするためには、各再帰で"ぴったり半分"にならないとダメ？つまり2ⁿ長？
+// x × y = (x0 + x1 × D) × (y0 + y1 × D)
+//       = x0 × y0
+//         + (x0 × y1 + x1 × y0) × D
+//         + (x1 × y1) × D²
+//       = x0 × y0
+//         - {(x0 - x1) × (y0 - y1) - x0 × y0 - x1 × y1} × D
+//         + (x1 × y1) × D²
+// Let t0 := x0 × y0, t1 := (x0 - x1) × (y0 - y1), t2 := x1 × y1,
+//       = t0 - (t1 - t0 - t2) × m + t2 × m²
+// [        x0 × y0        |        x1 × y1        | (x0 - x1) × (y0 - y1) |                               RECURSION                               |  x0 - x1  |  y0 - y1  ]
+// [           D           |           D           |           D           |                                 D × 3                                 |   D / 2   |   D / 2   ]
+fn karatsuba(ans: &mut Digits, x: &Digits, y: &Digits, d: usize) -> usize {
+    if d < KARATSUBA_THRESHOLD {
+        return elementary(ans, x, y);
     }
-    elementary(ans, lhs, rhs)
-    // TODO: Karatsuba
+
+    // 分割
+    let x0 = &x[0..d / 2];
+    let x1 = &x[d / 2..d];
+    let y0 = &y[0..d / 2];
+    let y1 = &y[d / 2..d];
+
+    println!();
+    println!("x0 =\n{:?}", x0);
+    println!("x1 =\n{:?}", x1);
+    println!("y0 =\n{:?}", y0);
+    println!("y1 =\n{:?}", y1);
+
+    // t0 = x0 × y0
+    let t0_len = karatsuba(&mut ans[d * 0..d * 6], x0, y0, d / 2);
+    let (t0, ans) = unsafe { ans.quote_mul(d * 0..d * 0 + t0_len) };
+    println!("t0 =\n{:?}", t0);
+
+    // t2 = x1 × y1
+    let t2_len = karatsuba(&mut ans[d * 1..d * 6], x1, y1, d / 2);
+    let (t2, ans) = unsafe { ans.quote_mul(d * 1..d * 1 + t2_len) };
+    println!("t2 =\n{:?}", t2);
+
+    // u = x0 - x1
+    let (u_len, u_sign) = sub::sub_sign(&mut ans[d * 6..d * 6 + d / 2], x0, x1);
+    let (u, ans) = unsafe { ans.quote_mul(d * 6..d * 6 + u_len) };
+    println!("u =\n{:?}", u);
+
+    // v = y0 - y1
+    let (v_len, v_sign) = sub::sub_sign(&mut ans[d * 6 + d / 2..d * 7], y0, y1);
+    let (v, ans) = unsafe { ans.quote_mul(d * 6 + d / 2..d * 6 + d / 2 + v_len) };
+    println!("v =\n{:?}", v);
+
+    match u_sign * v_sign {
+        0 => {
+            // t1 = u × v = 0
+            //   - (t1 - t0 - t2)
+            // = + t0 + t2
+            let len = add::add(&mut ans[d * 2..d * 4], t0, t2);
+            let (t1, ans) = unsafe { ans.quote_mul(d * 2..d * 2 + len) };
+            return add::add_assign(&mut ans[d / 2..d * 2], t1) + d / 2;
+        }
+        1 => {
+            // t1 = u × v
+            let uv_len = karatsuba(&mut ans[d * 2..d * 6], u, v, d / 2);
+            let (t1, ans) = unsafe { ans.quote_mul(d * 2..d * 2 + uv_len) };
+            println!("t1 = \n{:?}", t1);
+            // - (t1 - t0 - t2)
+            let (len, sign) = sub::sub_sign(&mut ans[d * 2..d * 4], t1, t0);
+            let (t1, ans) = unsafe { ans.quote_mul(d * 2..d * 2 + len) };
+            match sign {
+                0 => {
+                    return add::add_assign(&mut ans[d / 2..d * 2], t2) + d / 2;
+                }
+                1 => {
+                    println!("t2 = \n{:?}", t2);
+                    println!("t1 = \n{:?}", t1);
+                    let len = sub::sub(&mut ans[d * 2..d * 4], t2, t1);
+                    return add::add_assign(&mut ans[d / 2..d * 2], &t1[0..len]) + d / 2;
+                }
+                -1 => {
+                    let len = add::add(&mut ans[d * 2..d * 4], t1, t2);
+                    let (t1, ans) = unsafe { ans.quote_mul(d * 2..len) };
+                    return add::add_assign(&mut ans[d / 2..d * 2], &t1[0..len]) + d / 2;
+                }
+                _ => {
+                    panic!("UNKNOWN ERROR HAS BEEN OCCURED!");
+                }
+            }
+        }
+        -1 => {
+            // t1 = u × v
+            let uv_len = karatsuba(&mut ans[d * 2..d * 6], u, v, d / 2);
+            let (t1, ans) = unsafe { ans.quote_mul(d * 2..d * 2 + uv_len) };
+            //   - (-t1 - t0 - t2)
+            // = + t1 + t0 + t2
+            let len = add::add(&mut ans[d * 2..d * 4], t1, t0);
+            let len = add::add(&mut ans[d * 2..d * 4], &t1[0..len], t2);
+            return add::add_assign(&mut ans[d / 2..d * 2], &t1[0..len]) + d / 2;
+        }
+        _ => {
+            panic!("UNKNOWN ERROR HAS BEEN OCCURED!")
+        }
+    }
 }

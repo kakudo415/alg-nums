@@ -5,6 +5,9 @@ use std::cmp::Ordering;
 
 impl PartialEq for Natural {
     fn eq(&self, other: &Self) -> bool {
+        if self.len != other.len {
+            return false;
+        }
         for i in 0..cmp::max(self.len, other.len) {
             if self[i] != other[i] {
                 return false;
