@@ -103,7 +103,7 @@ impl fmt::UpperHex for Natural {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut uhex = String::new();
         for i in (0..self.len).rev() {
-            write!(uhex, "{:016X}", self[i]).unwrap();
+            write!(uhex, "{:016X} ", self[i]).unwrap();
         }
         write!(f, "{}", uhex)
     }

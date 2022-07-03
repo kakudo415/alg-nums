@@ -24,9 +24,8 @@ pub fn add_assign(ans: &mut Digits, rhs: &Digits) -> usize {
     for i in 0..ans.len {
         sum_carried = add_carry([ans[i], rhs[i], sum_carried[1]]);
         ans[i] = sum_carried[0];
-        if i >= rhs.len && sum_carried[1] == 0 {
+        if ans[i] != 0 {
             ans_len = i + 1;
-            break;
         }
     }
     ans_len

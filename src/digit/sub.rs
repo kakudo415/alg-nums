@@ -11,11 +11,12 @@ pub fn sub(ans: &mut Digits, lhs: &Digits, rhs: &Digits) -> usize {
     for i in 0..ans.len {
         diff_borrow = sub_borrow([lhs[i], rhs[i], diff_borrow[1]]);
         ans[i] = diff_borrow[0];
-        if i < lhs.len || i < rhs.len || diff_borrow[1] != 0 {
-            ans_len += 1;
+        if ans[i] != 0 {
+            ans_len = i + 1;
         }
     }
     if diff_borrow[1] > 0 {
+        println!("{:?} - {:?}", lhs, rhs);
         panic!("CANNOT CALCULATE (LITTLE - BIG) IN NATURAL NUMBER");
     }
     ans_len
@@ -56,7 +57,6 @@ pub fn sub_sign(ans: &mut Digits, lhs: &Digits, rhs: &Digits) -> (usize, isize) 
 
 fn less_than(lhs: &Digits, rhs: &Digits) -> bool {
     for i in (0..std::cmp::max(lhs.len(), rhs.len())).rev() {
-        println!("{}, {}", lhs[i], rhs[i]);
         if lhs[i] < rhs[i] {
             return true;
         }

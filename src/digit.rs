@@ -97,13 +97,13 @@ impl Digits {
     }
 
     fn index(&self, idx: usize) -> &Digit {
-        if idx as isize >= self.rlen {
+        if idx as isize >= self.rlen || idx >= self.len {
             return &0;
         }
         unsafe { self.ptr.offset(idx as isize).as_ref().unwrap() }
     }
     fn index_mut(&mut self, idx: usize) -> &mut Digit {
-        if idx as isize >= self.rlen {
+        if idx as isize >= self.rlen || idx >= self.len {
             panic!("INDEX_MUT FOR DIGITS IS OUT OF RANGE");
         }
         unsafe { self.ptr.offset(idx as isize).as_mut().unwrap() }
@@ -115,7 +115,7 @@ impl Digits {
             Digits::from_raw_parts(
                 head,
                 rng.end - rng.start,
-                self.len() as isize - rng.start as isize,
+                std::cmp::min(self.rlen as isize - rng.start as isize, self.len as isize - rng.start as isize),
             )
         }
     }
@@ -125,7 +125,7 @@ impl Digits {
             Digits::from_raw_parts_mut(
                 head,
                 rng.end - rng.start,
-                self.len() as isize - rng.start as isize,
+                std::cmp::min(self.rlen as isize - rng.start as isize, self.len as isize - rng.start as isize),
             )
         }
     }
@@ -222,9 +222,9 @@ impl ops::Index<ops::RangeTo<usize>> for Digits {
 
 impl std::fmt::Debug for Digits {
     fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        print!("Digits DEBUG INFO\n    ");
+        print!("[{} : {}]", self.len, self.rlen);
         for i in (0..self.len()).rev() {
-            print!("{:016X} ", self[i]);
+            print!(" {:016X}", self[i]);
         }
         return Ok(());
     }
